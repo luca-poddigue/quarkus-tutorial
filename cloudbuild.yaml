@@ -1,6 +1,6 @@
 steps:
-- name: 'alpine'
-  args: ['mvnw', 'package']
+- name: 'ubuntu'
+  args: ['bash', 'mvnw', 'package']
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-f', 'src/main/docker/Dockerfile.jvm', '-t', 'gcr.io/$PROJECT_ID/quarkus-tutorial', '.' ]
 images:
