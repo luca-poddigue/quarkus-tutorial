@@ -13,7 +13,7 @@ import java.util.concurrent.CompletionStage;
 public class GreetingResource {
 
     @Inject
-    GreetingService service;
+    private GreetingService service;
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -32,6 +32,6 @@ public class GreetingResource {
     @Path("/async")
     @Produces(MediaType.TEXT_PLAIN)
     public CompletionStage<String> async() {
-        return CompletableFuture.supplyAsync(() -> "hello");
+        return CompletableFuture.supplyAsync(() -> "ciao pirla");
     }
 }
