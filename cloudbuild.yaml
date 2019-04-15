@@ -12,7 +12,7 @@ steps:
   - image
   - deployment
   - quarkus-tutorial
-  - my-container=gcr.io/$PROJECT_ID/quarkus-tutorial:latest
+  - quarkus-tutorial-sha256=gcr.io/$PROJECT_ID/quarkus-tutorial:latest
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=europe-west1-b'
   - 'CLOUDSDK_CONTAINER_CLUSTER=standard-cluster-1'
