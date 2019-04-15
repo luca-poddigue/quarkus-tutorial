@@ -3,9 +3,9 @@ steps:
   entrypoint: 'bash'
   env:
   - 'GRAALVM_HOME=/opt/graalvm-ce-1.0.0-rc15'
-  args: ['mvnw', 'package', '-Pnative']
+  args: ['mvnw', 'package']
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-f', 'src/main/docker/Dockerfile.native', '-t', 'gcr.io/$PROJECT_ID/quarkus-tutorial', '.' ]
+  args: [ 'build', '-f', 'src/main/docker/Dockerfile.jvm', '-t', 'gcr.io/$PROJECT_ID/quarkus-tutorial', '.' ]
 - name: 'gcr.io/cloud-builders/kubectl'
   args:
   - set
@@ -14,7 +14,7 @@ steps:
   - my-deployment
   - my-container=gcr.io/$PROJECT_ID/quarkus-tutorial:latest
   env:
-  - 'CLOUDSDK_COMPUTE_ZONE=europe-west1-b	'
+  - 'CLOUDSDK_COMPUTE_ZONE=europe-west1-b'
   - 'CLOUDSDK_CONTAINER_CLUSTER=standard-cluster-1'
 images:
 - 'gcr.io/$PROJECT_ID/quarkus-tutorial'
