@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/mvn'
-  args: ['package', '-Pnative', '-Dnative-image.container-runtime=docker']
+  args: ['package', '-Pnative']
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-f', 'src/main/docker/Dockerfile.native', '-t', 'gcr.io/$PROJECT_ID/quarkus-tutorial', '.' ]
 images:
