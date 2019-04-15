@@ -1,6 +1,10 @@
 steps:
-- name: 'gcr.io/cloud-builders/mvn'
-  args: ['package', '-Pnative']
+- name: 'oracle/graalvm-ce:1.0.0-rc15'
+  entrypoint: 'bash'
+  env:
+  - 'GRAALVM_HOME=/opt/graalvm-ce-1.0.0.0-rc15/'
+  args:
+  - ['mvnw', 'package', '-Pnative']
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-f', 'src/main/docker/Dockerfile.native', '-t', 'gcr.io/$PROJECT_ID/quarkus-tutorial', '.' ]
 images:
