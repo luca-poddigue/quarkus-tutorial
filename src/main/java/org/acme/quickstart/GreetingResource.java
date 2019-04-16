@@ -1,5 +1,8 @@
 package org.acme.quickstart;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -11,6 +14,8 @@ import java.util.concurrent.CompletionStage;
 
 @Path("/hello")
 public class GreetingResource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreetingResource.class);
 
     @Inject
     private GreetingService service;
@@ -25,6 +30,7 @@ public class GreetingResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String hello() {
+        LOGGER.warn("saying hello");
         return "hello";
     }
 
