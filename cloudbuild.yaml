@@ -5,7 +5,19 @@ steps:
   - 'GRAALVM_HOME=/opt/graalvm-ce-1.0.0-rc15'
   args: ['mvnw', 'package', '-Pnative']
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-f', 'src/main/docker/Dockerfile.native', '-t', 'gcr.io/$PROJECT_ID/quarkus-tutorial', '.' ]
+   entrypoint: 'bash'
+   args:
+   - '-c'
+   - |
+     docker pull gcr.io/$PROJECT_ID/quarkus-tutorial:latest || exit 0
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build',
+    '-f', 'src/main/docker/Dockerfile.native',
+    '-t', 'gcr.io/$PROJECT_ID/quarkus-tutorial',
+    '--cache-from', 'gcr.io/$PROJECT_ID/quarkus-tutorial:latest',
+    '.'
+  ]
 - name: 'gcr.io/cloud-builders/kubectl'
   args:
   - set
