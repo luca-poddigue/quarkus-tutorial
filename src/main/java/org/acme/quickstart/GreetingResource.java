@@ -32,6 +32,6 @@ public class GreetingResource {
     @Path("/async")
     @Produces(MediaType.TEXT_PLAIN)
     public CompletionStage<String> async() {
-        return CompletableFuture.supplyAsync(() -> "ciao coglione");
+        return CompletableFuture.supplyAsync(() -> "ciao cane");
     }
 }
