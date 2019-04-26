@@ -59,6 +59,48 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.gavinmogan</groupId>
+                <artifactId>codacy-maven-plugin</artifactId>
+                <version>1.0.3</version>
+                <configuration>
+                    <apiToken>df351805b4b844539d0f893fb0d2cae7</apiToken>
+                    <projectToken>df351805b4b844539d0f893fb0d2cae7</projectToken>
+                    <failOnMissingReportFile>true</failOnMissingReportFile>
+                    <coverageReportFile>${project.reporting.outputDirectory}/jacoco/jacoco.xml</coverageReportFile>
+
+                    <codacyApiBaseUrl>https://api.codacy.com</codacyApiBaseUrl>
+                    <failOnMissingReportFile>false</failOnMissingReportFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>post-test</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>coverage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
