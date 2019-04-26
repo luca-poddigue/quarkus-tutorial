@@ -2,6 +2,7 @@ steps:
 - name: 'oracle/graalvm-ce:1.0.0-rc15'
   entrypoint: 'bash'
   env:
+  - 'COMMIT=$COMMIT_SHA'
   - 'GRAALVM_HOME=/opt/graalvm-ce-1.0.0-rc15'
   args: ['mvnw', 'package', '-Pnative']
 - name: 'gcr.io/cloud-builders/docker'

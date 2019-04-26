@@ -86,7 +86,7 @@
                     <projectToken>df351805b4b844539d0f893fb0d2cae7</projectToken>
                     <failOnMissingReportFile>true</failOnMissingReportFile>
                     <coverageReportFile>${project.reporting.outputDirectory}/jacoco/jacoco.xml</coverageReportFile>
-
+                    <commit>${env.COMMIT}</commit>
                     <codacyApiBaseUrl>https://api.codacy.com</codacyApiBaseUrl>
                     <failOnMissingReportFile>false</failOnMissingReportFile>
                 </configuration>
