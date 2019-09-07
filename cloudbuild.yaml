@@ -1,33 +1,96 @@
+secrets:
+  - kmsKeyName: projects/knowhub-new/locations/global/keyRings/build/cryptoKeys/mvn-repo
+    secretEnv:
+      GITHUB_REPO_TOKEN: CiQAMCvQs1kwZZtIcUdE1arH6xac0h30sptvOc/DN3qcZUw6XXMSVwBppKKBv1ql+nsI8STBMUIBFxhxtesppu+GUAaxI/xw4uOgJCl/zoVwBKyVrtMYioFhBz3u7OJ3AXbcjEhy+DQNJoqrpl2Mw8xixrg0dvsR5GypZk5XQA==
+      CODACY_API_TOKEN: CiQAMCvQsyT27ZeuTd60L7VX1ZvKttoeDvDjAIpNn6cRdy22R3wSSABppKKBRjIbP8H59EjbvOWsoMvfuBMoAJNcGM/aPL7LgUbcGXC8UYDYKkn0Qqckh+bStiwCtWsW+GK5nitdWx3SfGvyLQw/Pg==
+substitutions:
+  _MASTER_BRANCH: master
+  _GITHUB_USERNAME: luca-poddigue
+  _GITHUB_ENV_REPO: knowhub-env
+  _GRAALVM_BUILDER_IMAGE_TAG: 957a5f2
 steps:
-- name: 'oracle/graalvm-ce:1.0.0-rc15'
-  entrypoint: 'bash'
-  env:
-  - 'COMMIT=$COMMIT_SHA'
-  - 'GRAALVM_HOME=/opt/graalvm-ce-1.0.0-rc15'
-  args: ['mvnw', 'package', '-Pnative']
-- name: 'gcr.io/cloud-builders/docker'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - |
-    docker pull gcr.io/$PROJECT_ID/quarkus-tutorial:latest || exit 0
-- name: 'gcr.io/cloud-builders/docker'
-  args: [
-    'build',
-    '-f', 'src/main/docker/Dockerfile.native',
-    '-t', 'gcr.io/$PROJECT_ID/quarkus-tutorial',
-    '--cache-from', 'gcr.io/$PROJECT_ID/quarkus-tutorial:latest',
-    '.'
-  ]
-#- name: 'gcr.io/cloud-builders/kubectl'
-#  args:
-#  - set
-#  - image
-#  - deployment
-#  - test
-#  - quarkus-tutorial-sha256=gcr.io/$PROJECT_ID/quarkus-tutorial:latest
-#  env:
-#  - 'CLOUDSDK_COMPUTE_ZONE=europe-west1-b'
-#  - 'CLOUDSDK_CONTAINER_CLUSTER=standard-cluster-1'
-#images:
-#- 'gcr.io/$PROJECT_ID/quarkus-tutorial'
+  - id: 'Build native service'
+    name: 'eu.gcr.io/$PROJECT_ID/graalvm-builder:${_GRAALVM_BUILDER_IMAGE_TAG}'
+    entrypoint: 'bash'
+    env:
+      - 'COMMIT=$COMMIT_SHA'
+    secretEnv:
+      - GITHUB_REPO_TOKEN
+      - CODACY_API_TOKEN
+    args:
+      - '-c'
+      - |
+        bash mvnw -B -s .mvn/settings.xml -Pnative verify
+  - id: 'Docker build'
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker build -f src/main/docker/Dockerfile.native -t eu.gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA . && \
+        if [ "$BRANCH_NAME" == "${_MASTER_BRANCH}" ]; then docker push eu.gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA; fi
+  - id: 'Decrypt GitHub env repo SSH key'
+    name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=.github/id_rsa.enc
+      - --plaintext-file=/root/.ssh/id_rsa
+      - --location=global
+      - --keyring=build
+      - --key=github-ssh
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+  - id: 'Install GitHub env repo SSH key'
+    name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
+        chmod 600 /root/.ssh/id_rsa
+        cat <<EOF >/root/.ssh/config
+        Hostname github.com
+        IdentityFile /root/.ssh/id_rsa
+        EOF
+        mv .github/known_hosts /root/.ssh/known_hosts;
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+  - id: 'Clone GitHub env repo SSH key'
+    name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
+        git clone git@github.com:${_GITHUB_USERNAME}/${_GITHUB_ENV_REPO}
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+  - id: Generate manifest
+    name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
+        cd ${_GITHUB_ENV_REPO} && \
+        sed -i -E "s/(\s*$REPO_NAME:\s*)\w+/\1$SHORT_SHA/" images.yaml
+  - id: 'Update env repo'
+    name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
+        cd ${_GITHUB_ENV_REPO} && \
+        git config user.email $(gcloud auth list --filter=status:ACTIVE --format='value(account)') && \
+        git add images.yaml && \
+        git commit -m "[Build] Updating deployment for $REPO_NAME with new image tag $SHORT_SHA
+        Author: $(git log --format='%an <%ae>' -n 1 HEAD)" && \
+        git push origin master
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh

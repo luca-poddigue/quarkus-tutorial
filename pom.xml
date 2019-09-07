@@ -2,17 +2,37 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.acme</groupId>
-    <artifactId>getting-started</artifactId>
+    <groupId>it.knowhub</groupId>
+    <artifactId>quarkus-tutorial</artifactId>
+
+    <parent>
+        <groupId>it.knowhub</groupId>
+        <artifactId>bom</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <version>1.0-SNAPSHOT</version>
     <properties>
         <surefire-plugin.version>2.22.0</surefire-plugin.version>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <quarkus.version>0.13.1</quarkus.version>
+        <quarkus.version>0.21.1</quarkus.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>github-mvn-download</id>
+            <url>https://raw.githubusercontent.com/luca-poddigue/mvn-repo/master</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -44,61 +64,39 @@
             <artifactId>quarkus-smallrye-health</artifactId>
         </dependency>
     </dependencies>
+
+
     <build>
         <plugins>
             <plugin>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus.version}</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>enforce-versions</id>
                         <goals>
-                            <goal>build</goal>
+                            <goal>enforce</goal>
                         </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.6.1</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>1.11</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.3</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.gavinmogan</groupId>
-                <artifactId>codacy-maven-plugin</artifactId>
-                <version>1.0.3</version>
-                <configuration>
-                    <apiToken>df351805b4b844539d0f893fb0d2cae7</apiToken>
-                    <projectToken>df351805b4b844539d0f893fb0d2cae7</projectToken>
-                    <failOnMissingReportFile>true</failOnMissingReportFile>
-                    <coverageReportFile>${project.reporting.outputDirectory}/jacoco/jacoco.xml</coverageReportFile>
-                    <commit>${env.COMMIT}</commit>
-                    <codacyApiBaseUrl>https://api.codacy.com</codacyApiBaseUrl>
-                    <failOnMissingReportFile>false</failOnMissingReportFile>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>post-test</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>coverage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -111,6 +109,7 @@
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>native</id>
@@ -152,6 +151,29 @@
                                         </native.image.path>
                                     </systemProperties>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.gavinmogan</groupId>
+                        <artifactId>codacy-maven-plugin</artifactId>
+                        <version>1.2.0</version>
+                        <configuration>
+                            <apiToken>${env.CODACY_API_TOKEN}</apiToken>
+                            <projectToken>${env.CODACY_API_TOKEN}</projectToken>
+                            <commit>${env.COMMIT}</commit>
+                            <failOnMissingReportFile>true</failOnMissingReportFile>
+                            <coverageReportFile>${project.reporting.outputDirectory}/jacoco/jacoco.xml</coverageReportFile>
+                            <codacyApiBaseUrl>https://api.codacy.com</codacyApiBaseUrl>
+                            <failOnMissingReportFile>true</failOnMissingReportFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>post-test</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>coverage</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>

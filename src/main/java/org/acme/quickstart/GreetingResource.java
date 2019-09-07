@@ -9,8 +9,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 @Path("/hello")
 public class GreetingResource {
@@ -32,12 +30,5 @@ public class GreetingResource {
     public String hello() {
         LOGGER.warn("saying hello");
         return "hello";
-    }
-
-    @GET
-    @Path("/async")
-    @Produces(MediaType.TEXT_PLAIN)
-    public CompletionStage<String> async() {
-        return CompletableFuture.supplyAsync(() -> "ciao cane");
     }
 }
