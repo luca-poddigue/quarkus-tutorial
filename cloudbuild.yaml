@@ -7,7 +7,7 @@ substitutions:
   _MASTER_BRANCH: master
   _GITHUB_USERNAME: luca-poddigue
   _GITHUB_ENV_REPO: knowhub-env
-  _GRAALVM_BUILDER_IMAGE_TAG: 957a5f2
+  _GRAALVM_BUILDER_IMAGE_TAG: 08308ff
 steps:
   - id: 'Build native service'
     name: 'eu.gcr.io/$PROJECT_ID/graalvm-builder:${_GRAALVM_BUILDER_IMAGE_TAG}'
