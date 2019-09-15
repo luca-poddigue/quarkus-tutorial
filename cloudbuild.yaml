@@ -1,7 +1,7 @@
 secrets:
   - kmsKeyName: projects/knowhub-new/locations/global/keyRings/build/cryptoKeys/codacy-token
     secretEnv:
-      CODACY_API_TOKEN: CiQA2k5zWJwKGm88agJ1BBpRANJlc5ovwK2//5Fh+ZX3krD+QiYSSAA/3/M/oP3wLujcrfzXc1dAmrkKhDwuROo4gl6Zs/fYNiHQh643beEUhiC0Nd/iaFSXCnKMATOBk9AOTzR19wdRPmWsj3H/Mg==
+      CODACY_API_TOKEN: CiQA2k5zWPQwD132Qj7AtNyMAxgMEgBl8x55lIB3A8Tcn+vY2fcSSAA/3/M/3xOQRlAFMvYVK03+o/9k+q6K/Kd4i1g/e5sG8JORHjjyK8Y5M8oeuOXIi2YaJfzPY6Chw8teVpAmi4L+fV5fSdvzNA==
   - kmsKeyName: projects/knowhub-new/locations/global/keyRings/build/cryptoKeys/mvn-repo
     secretEnv:
       GITHUB_REPO_TOKEN: CiQAMCvQs1kwZZtIcUdE1arH6xac0h30sptvOc/DN3qcZUw6XXMSVwBppKKBv1ql+nsI8STBMUIBFxhxtesppu+GUAaxI/xw4uOgJCl/zoVwBKyVrtMYioFhBz3u7OJ3AXbcjEhy+DQNJoqrpl2Mw8xixrg0dvsR5GypZk5XQA==
