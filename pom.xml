@@ -2,10 +2,7 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
     <modelVersion>4.0.0</modelVersion>
-    <groupId>it.knowhub</groupId>
-    <artifactId>quarkus-tutorial</artifactId>
 
     <parent>
         <groupId>it.knowhub</groupId>
@@ -13,37 +10,14 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
+    <artifactId>quarkus-tutorial</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
         <surefire-plugin.version>2.22.0</surefire-plugin.version>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <quarkus.version>0.21.1</quarkus.version>
         <maven.compiler.source>1.8</maven.compiler.source>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>github-mvn-download</id>
-            <url>https://raw.githubusercontent.com/luca-poddigue/mvn-repo/master</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-bom</artifactId>
-                <version>${quarkus.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -64,12 +38,19 @@
             <artifactId>quarkus-smallrye-health</artifactId>
         </dependency>
     </dependencies>
-
-
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>github-mvn-download</id>
+            <url>https://raw.githubusercontent.com/luca-poddigue/mvn-repo/master</url>
+        </repository>
+    </repositories>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
                     <execution>
@@ -93,14 +74,6 @@
             <plugin>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -121,7 +94,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>native</id>
@@ -167,18 +139,43 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>com.github.kongchen</groupId>
+                        <artifactId>swagger-maven-plugin</artifactId>
+                        <configuration>
+                            <apiSources>
+                                <apiSource>
+                                    <info>
+                                        <title>Quarkus Tutorial API</title>
+                                        <description>Testing Cloud Endpoints</description>
+                                        <version>1.0.0</version>
+                                    </info>
+                                    <outputFormats>yaml</outputFormats>
+                                    <basePath>/v1</basePath>
+                                    <swaggerDirectory>${project.build.directory}/openapi</swaggerDirectory>
+                                    <swaggerFileName>openapi</swaggerFileName>
+                                    <locations>
+                                        <location>org.acme.quickstart</location>
+                                    </locations>
+                                    <host>echo-api.endpoints.${env.PROJECT_ID}.cloud.goog</host>
+                                    <schemes>
+                                        <scheme>http</scheme>
+                                        <scheme>https</scheme>
+                                    </schemes>
+                                    <securityDefinitions>
+                                        <securityDefinition>
+                                            <name>api_key</name>
+                                            <type>apiKey</type>
+                                            <in>query</in>
+                                        </securityDefinition>
+                                    </securityDefinitions>
+                                </apiSource>
+                            </apiSources>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>com.gavinmogan</groupId>
                         <artifactId>codacy-maven-plugin</artifactId>
                         <version>1.2.0</version>
-                        <configuration>
-                            <apiToken>${env.CODACY_API_TOKEN}</apiToken>
-                            <projectToken>${env.CODACY_API_TOKEN}</projectToken>
-                            <commit>${env.COMMIT}</commit>
-                            <failOnMissingReportFile>true</failOnMissingReportFile>
-                            <coverageReportFile>${project.reporting.outputDirectory}/jacoco/jacoco.xml</coverageReportFile>
-                            <codacyApiBaseUrl>https://api.codacy.com</codacyApiBaseUrl>
-                            <failOnMissingReportFile>true</failOnMissingReportFile>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>post-test</id>
@@ -188,6 +185,16 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <apiToken>${env.CODACY_API_TOKEN}</apiToken>
+                            <projectToken>${env.CODACY_API_TOKEN}</projectToken>
+                            <commit>${env.COMMIT}</commit>
+                            <failOnMissingReportFile>true</failOnMissingReportFile>
+                            <coverageReportFile>${project.reporting.outputDirectory}/jacoco/jacoco.xml
+                            </coverageReportFile>
+                            <codacyApiBaseUrl>https://api.codacy.com</codacyApiBaseUrl>
+                            <failOnMissingReportFile>true</failOnMissingReportFile>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
