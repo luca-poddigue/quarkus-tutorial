@@ -10,7 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("/hello")
+@Path("v1/hello")
 public class GreetingResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingResource.class);
