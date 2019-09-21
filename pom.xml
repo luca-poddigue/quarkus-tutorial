@@ -16,6 +16,8 @@
         <surefire-plugin.version>2.22.0</surefire-plugin.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
+        <endpoints.v1.version>1.0.0</endpoints.v1.version>
+        <endpoints.v1.basePath>/v1</endpoints.v1.basePath>
     </properties>
 
     <dependencies>
@@ -92,6 +94,42 @@
                     </systemProperties>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.github.kongchen</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <configuration>
+                    <apiSources>
+                        <!-- Add here another apiSource if you need a new version, or to produce the openapi file for prod (change host and security config)-->
+                        <apiSource>
+                            <info>
+                                <title>KnowHub API (test)</title>
+                                <description>Used by the frontend app</description>
+                                <version>${endpoints.v1.version}</version>
+                            </info>
+                            <outputFormats>yaml</outputFormats>
+                            <springmvc>false</springmvc>
+                            <basePath>${endpoints.v1.basePath}</basePath>
+                            <swaggerDirectory>${project.build.directory}/openapi</swaggerDirectory>
+                            <swaggerFileName>openapi-test</swaggerFileName>
+                            <locations>
+                                <location>org.acme.quickstart</location>
+                            </locations>
+                            <host>app.endpoints.endless-tractor-248005.cloud.goog</host>
+                            <schemes>
+                                <scheme>http</scheme>
+                                <scheme>https</scheme>
+                            </schemes>
+                            <securityDefinitions>
+                                <securityDefinition>
+                                    <name>api_key</name>
+                                    <type>apiKey</type>
+                                    <in>query</in>
+                                </securityDefinition>
+                            </securityDefinitions>
+                        </apiSource>
+                    </apiSources>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -137,40 +175,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.github.kongchen</groupId>
-                        <artifactId>swagger-maven-plugin</artifactId>
-                        <configuration>
-                            <apiSources>
-                                <apiSource>
-                                    <info>
-                                        <title>Quarkus Tutorial API</title>
-                                        <description>Testing Cloud Endpoints</description>
-                                        <version>1.0.0</version>
-                                    </info>
-                                    <outputFormats>yaml</outputFormats>
-                                    <basePath>/v1</basePath>
-                                    <swaggerDirectory>${project.build.directory}/openapi</swaggerDirectory>
-                                    <swaggerFileName>openapi</swaggerFileName>
-                                    <locations>
-                                        <location>org.acme.quickstart</location>
-                                    </locations>
-                                    <host>echo-api.endpoints.${env.PROJECT_ID}.cloud.goog</host>
-                                    <schemes>
-                                        <scheme>http</scheme>
-                                        <scheme>https</scheme>
-                                    </schemes>
-                                    <securityDefinitions>
-                                        <securityDefinition>
-                                            <name>api_key</name>
-                                            <type>apiKey</type>
-                                            <in>query</in>
-                                        </securityDefinition>
-                                    </securityDefinitions>
-                                </apiSource>
-                            </apiSources>
-                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>com.gavinmogan</groupId>
