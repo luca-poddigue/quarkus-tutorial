@@ -1,5 +1,7 @@
 package org.acme.quickstart;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,10 +12,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-/*@Api(authorizations = {
+@Api(authorizations = {
         @Authorization(value = "api_key"),
         @Authorization(value = "auth0_jwk")
-})*/
+})
 @Path("/v1/hello")
 public class GreetingResource {
 

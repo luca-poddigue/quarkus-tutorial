@@ -8,8 +8,8 @@
     "authorizationUrl": "",
     "flow": "implicit",
     "type": "oauth2",
-    "x-google-issuer": "https://YOUR-ACCOUNT-NAME.auth0.com/",
-    "x-google-jwks_uri": "https://YOUR-ACCOUNT-NAME.auth0.com/.well-known/jwks.json",
-    "x-google-audiences": "YOUR-CLIENT-ID"
+    "x-google-issuer": "https://easyknow-test.auth0.com/",
+    "x-google-jwks_uri": "https://easyknow-test.auth0.com/.well-known/jwks.json",
+    "x-google-audiences": "https://knowhub-test.com/api/app/v1/"
   }
 }

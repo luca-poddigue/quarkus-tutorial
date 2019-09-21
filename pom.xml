@@ -124,11 +124,11 @@
                                 <scheme>http</scheme>
                                 <scheme>https</scheme>
                             </schemes>
-                           <!-- <securityDefinitions>
+                            <securityDefinitions>
                                 <securityDefinition>
                                     <json>/securityDefinition.json</json>
                                 </securityDefinition>
-                            </securityDefinitions> -->
+                            </securityDefinitions>
                         </apiSource>
                     </apiSources>
                 </configuration>
