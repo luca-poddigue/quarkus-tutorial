@@ -17,7 +17,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <endpoints.v1.version>1.0.0</endpoints.v1.version>
-        <endpoints.v1.basePath>/v1</endpoints.v1.basePath>
     </properties>
 
     <dependencies>
@@ -39,7 +38,14 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-health</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-core</artifactId>
+            <version>1.5.23</version>
+        </dependency>
+
     </dependencies>
+
     <repositories>
         <repository>
             <snapshots>
@@ -108,7 +114,6 @@
                             </info>
                             <outputFormats>yaml</outputFormats>
                             <springmvc>false</springmvc>
-                            <basePath>${endpoints.v1.basePath}</basePath>
                             <swaggerDirectory>${project.build.directory}/openapi</swaggerDirectory>
                             <swaggerFileName>openapi-test</swaggerFileName>
                             <locations>
@@ -119,13 +124,11 @@
                                 <scheme>http</scheme>
                                 <scheme>https</scheme>
                             </schemes>
-                            <securityDefinitions>
+                           <!-- <securityDefinitions>
                                 <securityDefinition>
-                                    <name>api_key</name>
-                                    <type>apiKey</type>
-                                    <in>query</in>
+                                    <json>/securityDefinition.json</json>
                                 </securityDefinition>
-                            </securityDefinitions>
+                            </securityDefinitions> -->
                         </apiSource>
                     </apiSources>
                 </configuration>

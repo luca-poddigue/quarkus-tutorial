@@ -10,7 +10,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("v1/hello")
+/*@Api(authorizations = {
+        @Authorization(value = "api_key"),
+        @Authorization(value = "auth0_jwk")
+})*/
+@Path("/v1/hello")
 public class GreetingResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingResource.class);
