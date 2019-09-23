@@ -1,0 +1,26 @@
+info:
+  title: "KnowHub API (test)"
+  description: "Used by the frontend app"
+  version: "1.0.0"
+host: "app.endpoints.endless-tractor-248005.cloud.goog"
+x-google-endpoints:
+  - name: "app.endpoints.endless-tractor-248005.cloud.goog"
+    target: "35.233.17.208"
+schemes:
+  - "http"
+  - "https"
+security:
+  - api_key: []
+    auth0_key: []
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "key"
+    in: "query"
+  auth0_jwk:
+    type: "oauth2"
+    authorizationUrl: ""
+    flow: "implicit"
+    x-google-issuer: "https://easyknow-test.auth0.com/"
+    x-google-jwks_uri: "https://easyknow-test.auth0.com/.well-known/jwks.json"
+    x-google-audiences: "https://knowhub-test.com/api/app/v1/"

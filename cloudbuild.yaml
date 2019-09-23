@@ -121,4 +121,5 @@ steps:
     args:
       - '-c'
       - |
+        cat target/openapi/openapi-test-paths.yaml src/main/resources/openapi-test-base.yaml > target/openapi/openapi-test.yaml
         if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then gcloud endpoints services deploy target/openapi/openapi-test.yaml --validate-only; else gcloud endpoints services deploy target/openapi/openapi-test.yaml; fi
