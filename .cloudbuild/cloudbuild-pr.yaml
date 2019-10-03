@@ -1,0 +1,37 @@
+secrets:
+  - kmsKeyName: projects/knowhub-new/locations/global/keyRings/build/cryptoKeys/codacy-token
+    secretEnv:
+      CODACY_API_TOKEN: CiQA2k5zWPQwD132Qj7AtNyMAxgMEgBl8x55lIB3A8Tcn+vY2fcSSAA/3/M/3xOQRlAFMvYVK03+o/9k+q6K/Kd4i1g/e5sG8JORHjjyK8Y5M8oeuOXIi2YaJfzPY6Chw8teVpAmi4L+fV5fSdvzNA==
+  - kmsKeyName: projects/knowhub-new/locations/global/keyRings/build/cryptoKeys/mvn-repo
+    secretEnv:
+      GITHUB_REPO_TOKEN: CiQAMCvQs1kwZZtIcUdE1arH6xac0h30sptvOc/DN3qcZUw6XXMSVwBppKKBv1ql+nsI8STBMUIBFxhxtesppu+GUAaxI/xw4uOgJCl/zoVwBKyVrtMYioFhBz3u7OJ3AXbcjEhy+DQNJoqrpl2Mw8xixrg0dvsR5GypZk5XQA==
+substitutions:
+  _GRAALVM_BUILDER_IMAGE_TAG: 3d696bc
+steps:
+  - id: 'Build native service'
+    name: 'eu.gcr.io/$PROJECT_ID/graalvm-builder:${_GRAALVM_BUILDER_IMAGE_TAG}'
+    entrypoint: 'bash'
+    env:
+      - 'COMMIT=$COMMIT_SHA'
+    secretEnv:
+      - GITHUB_REPO_TOKEN
+      - CODACY_API_TOKEN
+    args:
+      - '-c'
+      - |
+        bash mvnw -B -s .mvn/settings.xml -Pnative verify
+  - id: 'Docker build'
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker build -t eu.gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA .
+  - id: 'Validate Endpoints configuration'
+    name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cat target/openapi/openapi-test-paths.yaml src/main/resources/openapi-test-base.yaml > target/openapi/openapi-test.yaml && \
+        gcloud endpoints services deploy target/openapi/openapi-test.yaml --validate-only

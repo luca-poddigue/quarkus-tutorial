@@ -6,9 +6,9 @@ secrets:
     secretEnv:
       GITHUB_REPO_TOKEN: CiQAMCvQs1kwZZtIcUdE1arH6xac0h30sptvOc/DN3qcZUw6XXMSVwBppKKBv1ql+nsI8STBMUIBFxhxtesppu+GUAaxI/xw4uOgJCl/zoVwBKyVrtMYioFhBz3u7OJ3AXbcjEhy+DQNJoqrpl2Mw8xixrg0dvsR5GypZk5XQA==
 substitutions:
-  _MASTER_BRANCH: master
   _GITHUB_USERNAME: luca-poddigue
   _GITHUB_ENV_REPO: knowhub-env
+  _HELM_CHART_NAME: backend
   _GRAALVM_BUILDER_IMAGE_TAG: 3d696bc
   _IMAGES_TO_KEEP: "2"
 steps:
@@ -31,7 +31,7 @@ steps:
       - '-c'
       - |
         docker build -t eu.gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA . && \
-        if [ "$BRANCH_NAME" == "${_MASTER_BRANCH}" ]; then docker push eu.gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA; fi
+        docker push eu.gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA
   - id: 'Decrypt GitHub env repo SSH key'
     name: 'gcr.io/cloud-builders/gcloud'
     args:
@@ -51,7 +51,6 @@ steps:
     args:
       - '-c'
       - |
-        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
         chmod 600 /root/.ssh/id_rsa
         cat <<EOF >/root/.ssh/config
         Hostname github.com
@@ -63,31 +62,24 @@ steps:
         path: /root/.ssh
   - id: 'Clone GitHub env repo SSH key'
     name: 'gcr.io/cloud-builders/git'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
-        git clone git@github.com:${_GITHUB_USERNAME}/${_GITHUB_ENV_REPO}
+    args: ['clone', 'git@github.com:${_GITHUB_USERNAME}/${_GITHUB_ENV_REPO}']
     volumes:
       - name: 'ssh'
         path: /root/.ssh
-  - id: Update image tag
+  - id: 'Update image tag'
     name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
-        cd ${_GITHUB_ENV_REPO}/knowhub && \
-        sed -i -E "s/(\s*$REPO_NAME:\s*)\w+/\1$SHORT_SHA/" images.yaml
+        cd ${_GITHUB_ENV_REPO}/knowhub/charts/${_HELM_CHART_NAME} && \
+        sed -i -E "s/(\s*imageTag:\s*)\w+/\1$SHORT_SHA/" values.yaml
   - id: 'Push to env repo'
     name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
         cd ${_GITHUB_ENV_REPO}/knowhub && \
         git config user.email $(gcloud auth list --filter=status:ACTIVE --format='value(account)') && \
         git add images.yaml && \
@@ -104,7 +96,6 @@ steps:
     args:
       - '-c'
       - |
-        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
         for tag in $(gcloud container images list-tags eu.gcr.io/$PROJECT_ID/$REPO_NAME --format='get(tags)' | awk -F '[[:space:]][[:space:]]+' 'NR>${_IMAGES_TO_KEEP}{print $0}'); do gcloud container images untag --quiet eu.gcr.io/$PROJECT_ID/$REPO_NAME:$tag; done
   - id: 'Drop untagged images'
     name: 'gcr.io/cloud-builders/gcloud'
@@ -112,7 +103,6 @@ steps:
     args:
       - '-c'
       - |
-        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then exit 0; fi
         for digest in $(gcloud container images list-tags eu.gcr.io/$PROJECT_ID/$REPO_NAME --filter='-tags:*' --format='get(digest)'); do gcloud container images delete --quiet eu.gcr.io/$PROJECT_ID/$REPO_NAME@$digest; done
   # When prod repo will be available, it may make sense to deploy endpoints configuration also to prod when this build runs.
   - id: 'Deploy Endpoints configuration'
@@ -121,5 +111,5 @@ steps:
     args:
       - '-c'
       - |
-        cat target/openapi/openapi-test-paths.yaml src/main/resources/openapi-test-base.yaml > target/openapi/openapi-test.yaml
-        if [ "$BRANCH_NAME" != "${_MASTER_BRANCH}" ]; then gcloud endpoints services deploy target/openapi/openapi-test.yaml --validate-only; else gcloud endpoints services deploy target/openapi/openapi-test.yaml; fi
+        cat target/openapi/openapi-test-paths.yaml src/main/resources/openapi-test-base.yaml > target/openapi/openapi-test.yaml && \
+        gcloud endpoints services deploy target/openapi/openapi-test.yaml
