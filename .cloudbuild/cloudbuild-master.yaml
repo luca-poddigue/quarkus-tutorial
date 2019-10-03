@@ -80,9 +80,9 @@ steps:
     args:
       - '-c'
       - |
-        cd ${_GITHUB_ENV_REPO}/knowhub && \
+        cd ${_GITHUB_ENV_REPO}/knowhub/charts/${_HELM_CHART_NAME} && \
         git config user.email $(gcloud auth list --filter=status:ACTIVE --format='value(account)') && \
-        git add images.yaml && \
+        git add values.yaml && \
         git commit -m "[Build] Updating deployment for $REPO_NAME with new image tag $SHORT_SHA
         Author: $(git log --format='%an <%ae>' -n 1 HEAD)" && \
         git push origin master
